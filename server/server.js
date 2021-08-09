@@ -6,38 +6,47 @@ const { typeDefs, resolvers } = require('./schemas');
 const { authMiddleware } = require('./utils/auth');
 const db = require('./config/connection');
 
-// Set up express server
-const app = express();
-const PORT = process.env.PORT || 3001;
+// Start the express server and graphql playground
+async function startApolloServer() {
 
-// Implement the apollo server with the GraphQL schema
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context: authMiddleware,
-});
+  // Implement the apollo server with the GraphQL schema
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: authMiddleware
+  });
 
-// Apply it to the Express server as middleware
-server.applyMiddleware({ app });
+  await server.start();
 
-// Sets up data parsing
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+  // Sets up express server
+  const app = express();
+  const PORT = process.env.PORT || 3001;
 
-// If in production, serve client/build as static assets
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
+  // Sets up data parsing
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json());
+
+  // If in production, serve client/build as static assets
+  if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../client/build')));
+  }
+
+  // Apply it to the Express server as middleware
+  server.applyMiddleware({ app });
+  await new Promise((resolve) => {
+    db.once('open', () => {
+      app.listen(PORT, () => {
+        console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+      });
+    }, resolve);
+  })
+
+  // Set up a wildcard route on our server that will serve the front end whenever a request for a non-API route is received
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+  });
+
+  return { server, app };
 }
 
-// Set up a wildcard route on our server that will serve the front end whenever a request for a non-API route is received
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'));
-});
-
-// Start the express server and graphql playground
-db.once('open', () => {
-  app.listen(PORT, () => {
-    console.log(`🌍 Now listening on localhost:${PORT}`);
-    console.log(`Use GraphQL at http://localhost:${PORT}${server.graphqlPath}`);
-  });
-});
+startApolloServer();
