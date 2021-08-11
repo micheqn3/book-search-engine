@@ -8,8 +8,6 @@ mutation login($email: String!, $password: String!) {
             _id,
             username,
             email,
-            bookCount, 
-            savedBooks
         }
     }
 }
