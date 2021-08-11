@@ -20,8 +20,6 @@ mutation addUser($username: String!, $email: String!, $password: String!) {
             _id,
             username,
             email,
-            bookCount, 
-            savedBooks
         }
     }
 }
