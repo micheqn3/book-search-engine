@@ -10,6 +10,8 @@
 
 ### Link to deployed application
 
+https://book-search-engine-micheqn3.herokuapp.com/
+
 ### Installing locally
 
 1. Make sure you have Node.js to run the application
@@ -36,6 +38,17 @@
   - React Router Dom
   - React Bootstrap
   - Concurrently
+
+### Screenshot of pages
+
+Search for books
+:-------------------------:
+![Search for books](/Assets/search-book.png)
+
+Saved books
+:-------------------------:
+![Saved books](/Assets/saved-books.png)
+
 
 ### License [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
